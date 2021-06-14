@@ -11,10 +11,16 @@
 
   
   ## Video Link:
-  https://drive.google.com/file/d/1wLvq-vXRNPTP3ZvW0vfu8L9Wtd_KmVgi/view
+  https://drive.google.com/file/d/128tI2bmLFxM6y9Oe9NcG0RK-SY7UwKeq/view
 
   ## Screenshots:
-  ![](./assets/P7.jpg)
+  ![](./assets/SQL1.jpg)
+
+  ![](./assets/SQL2.jpg)
+
+  ![](./assets/SQL3.jpg)
+
+  ![](./assets/SQL4.jpg)
 
   ## Table of Contents
 
@@ -52,11 +58,7 @@
 
   ## Tests
 
-  To run tests, run the following command:
-
-  ```
-  npm test
-  ```
+  No tests have been defined as of yet.
 
   ## Questions
 

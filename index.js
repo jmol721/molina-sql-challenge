@@ -19,7 +19,6 @@ const questions = [
 const init = async function() {
     return inquirer.prompt(questions)
     .then((answer) => {
-        console.log(answer);
         const action = answer['action'];
         switch (action) {
             case 'View all departments':
@@ -29,15 +28,12 @@ const init = async function() {
             case 'View all roles':
                 console.log("\n");
                 handleViewAllRoles();
-                init();
                 break;
             case 'View all employees':
                 console.log("\n");
                 handleViewAllEmployees();
-                init();
                 break;
             case 'Add a department':
-                console.log('Add a department');
                 inquirer.prompt([
                     {
                         type: 'input',
@@ -48,10 +44,8 @@ const init = async function() {
                     handleAddADepartment(answer.departmentName);
                     handleViewAllDepartments();
                 })
-                init;
                 break;
             case 'Add a role':
-                console.log('Add a role');
                 inquirer.prompt([
                     {
                         type: 'input',
@@ -75,7 +69,6 @@ const init = async function() {
                 })
                 break;
             case 'Add an employee':
-                console.log('Add an employee');
                 inquirer.prompt([
                     {
                         type: 'input',
@@ -94,8 +87,6 @@ const init = async function() {
                     employeeTOAdd.last_name = lastName;
                     database.query(`SELECT title, id FROM role;`, (err, data) => {
                         const employeeRoles = data.map(({ id, title }) => ({ name: title, value: id }));
-                        console.log(employeeRoles);
-                        console.log(data);
                         inquirer.prompt([
                             {
                                 type: 'list',
@@ -138,7 +129,6 @@ const init = async function() {
                 })
                 break;
             case 'Update an employee':
-                console.log('Update an employee');
                 const updatedEmployee = {};
                 database.query("SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employee;", (err, data) => {
                     const employeeNames = data.map(({ id, name }) => ({ name, value: id }));
@@ -150,7 +140,6 @@ const init = async function() {
                         choices: employeeNames
                     }
                     ]).then((empNames) => {
-                        // { updateEmployeeName: id }
                         updatedEmployee.id = empNames.updateEmployeeName;
                         database.query(`SELECT department_id, title FROM role;`, (err, data) => {
                             const employeeRoles = data.map(({ department_id, title }) => ({ name: title, value: department_id }));
@@ -162,7 +151,6 @@ const init = async function() {
                                     choices: employeeRoles
                                 }
                             ]).then(empNewRole => {
-                                // { employeeNewRole: id }
                                 updatedEmployee.role_id = empNewRole.employeeNewRole;
                                 console.log(updatedEmployee);
                                 database.query(`UPDATE employee SET role_id = ${updatedEmployee.role_id} WHERE id = ${updatedEmployee.id}`, (err, data) => {
@@ -186,7 +174,6 @@ const init = async function() {
 }
 
 const handleViewAllDepartments = async() => {
-    console.log('view all departments');
     console.log("\n");
     database.query(`SELECT * FROM department`)
         .then((rows) => {
@@ -196,7 +183,6 @@ const handleViewAllDepartments = async() => {
 };
 
 const handleViewAllRoles = async() => {
-    console.log('view all roles');
     console.log("\n");
     database.query(`SELECT * FROM role`)
         .then((rows) => {
@@ -206,7 +192,6 @@ const handleViewAllRoles = async() => {
 };
 
 const handleViewAllEmployees = async() => {
-    console.log('view all employess');
     console.log("\n");
     database.query(`SELECT employee.id, employee.first_name, 
     employee.last_name, role.title, department.name AS department, 
@@ -220,28 +205,23 @@ const handleViewAllEmployees = async() => {
 };
 
 const handleAddADepartment = async(answer) => {
-    console.log(answer);
     console.log("\n");
     database.query(`INSERT INTO department (name) VALUE ("${answer}");`)
     .then(() => {
-        return init();
     });
 };
 
 const handleAddARole = async({ roleTitle, roleSalary, roleId }) => {
-    console.log({ roleTitle, roleSalary, roleId });
     console.log("\n");
     database.query(`INSERT INTO role (title, salary, department_id)
     VALUES ("${roleTitle}", ${roleSalary}, ${roleId});`)
     .then(() => {
-        return init();
     });
 };
 
 const handleAddAnEmployee = async() => {
     database.query(`SELECT title FROM role;`)
     .then(() => {
-        return init();
     });
 };
 
