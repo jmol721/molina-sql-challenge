@@ -76,11 +76,107 @@ const init = async function() {
                 break;
             case 'Add an employee':
                 console.log('Add an employee');
-                init();
+                inquirer.prompt([
+                    {
+                        type: 'input',
+                        name: 'firstName',
+                        message: "What is the employee's first name?"
+                    },
+                    {
+                        type: 'input',
+                        name: 'lastName',
+                        message: "What is the employee's last name?"
+                    }
+                ]).then(function(employeeName) {
+                    const employeeTOAdd = {};
+                    const { firstName, lastName } = employeeName;
+                    employeeTOAdd.first_name = firstName;
+                    employeeTOAdd.last_name = lastName;
+                    database.query(`SELECT title, id FROM role;`, (err, data) => {
+                        const employeeRoles = data.map(({ id, title }) => ({ name: title, value: id }));
+                        console.log(employeeRoles);
+                        console.log(data);
+                        inquirer.prompt([
+                            {
+                                type: 'list',
+                                name: 'employeeRole',
+                                message: "What is the employee's role?",
+                                choices: employeeRoles
+                            }
+                        ]).then(empRole => {
+                            const {employeeRole: employeeRoleId } = empRole;
+                            employeeTOAdd.role_id = employeeRoleId;
+
+                            database.query("SELECT id, CONCAT(first_name, ' ', last_name) as name FROM employee;", (err, data) => {
+                                const employeeManagers = data.map(({ id, name }) => ({ name, value: id }));
+                                inquirer.prompt([
+                                {
+                                    type: 'list',
+                                    name: 'employeeManager',
+                                    message: "Who is the employee's manager?",
+                                    choices: employeeManagers 
+                                }
+                                ]).then((empManager) => {
+                                    const { employeeManager: employeeManagerId } = empManager;
+                                    employeeTOAdd.manager_id = employeeManagerId;
+
+                                    const insertSql = `INSERT INTO employee (first_name, last_name, role_id, manager_id)
+                                    VALUES ("${employeeTOAdd.first_name}", "${employeeTOAdd.last_name}", ${employeeTOAdd.role_id}, ${employeeTOAdd.manager_id});`
+                                    database.query(insertSql, (err) => {
+                                        if (err) {
+                                            console.log(err);
+                                        } else {
+                                            handleViewAllEmployees();
+                                            init();
+                                        }
+                                    });
+                                });
+                            });
+                        });
+                    });
+                    
+                })
                 break;
             case 'Update an employee':
                 console.log('Update an employee');
-                init();
+                const updatedEmployee = {};
+                database.query("SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employee;", (err, data) => {
+                    const employeeNames = data.map(({ id, name }) => ({ name, value: id }));
+                    inquirer.prompt([
+                    {
+                        type: 'list',
+                        name: 'updateEmployeeName',
+                        message: "Which employee would you like to update?",
+                        choices: employeeNames
+                    }
+                    ]).then((empNames) => {
+                        // { updateEmployeeName: id }
+                        updatedEmployee.id = empNames.updateEmployeeName;
+                        database.query(`SELECT department_id, title FROM role;`, (err, data) => {
+                            const employeeRoles = data.map(({ department_id, title }) => ({ name: title, value: department_id }));
+                            inquirer.prompt([
+                                {
+                                    type: 'list',
+                                    name: 'employeeNewRole',
+                                    message: "What is the employee's NEW role?",
+                                    choices: employeeRoles
+                                }
+                            ]).then(empNewRole => {
+                                // { employeeNewRole: id }
+                                updatedEmployee.role_id = empNewRole.employeeNewRole;
+                                console.log(updatedEmployee);
+                                database.query(`UPDATE employee SET role_id = ${updatedEmployee.role_id} WHERE id = ${updatedEmployee.id}`, (err, data) => {
+                                    if (err) {
+                                        console.log(err);
+                                    } else {
+                                        handleViewAllEmployees();
+                                        init();
+                                    }
+                                });
+                            });
+                        });
+                    });
+                });
                 break;
             default:
                 console.log('Choice not avalible');
@@ -137,6 +233,13 @@ const handleAddARole = async({ roleTitle, roleSalary, roleId }) => {
     console.log("\n");
     database.query(`INSERT INTO role (title, salary, department_id)
     VALUES ("${roleTitle}", ${roleSalary}, ${roleId});`)
+    .then(() => {
+        return init();
+    });
+};
+
+const handleAddAnEmployee = async() => {
+    database.query(`SELECT title FROM role;`)
     .then(() => {
         return init();
     });

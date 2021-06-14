@@ -1,14 +1,11 @@
-// const Sequelize = require('sequelize');
+require('dotenv').config();
 
-// require('dotenv').config();
 const mysql = require('mysql2');
 const config = {
     host: 'localhost',
-    // MySQL username,
-    user: 'root',
-    // {TODO: Add your MySQL password}
-    password: 'Audilambo721',
-    database: 'employee_tracker'
+    user: process.env.DB_USER,
+    password: process.env.DB_PW,
+    database: process.env.DB_NAME
 };
 
 class Database {
@@ -35,26 +32,5 @@ class Database {
         } );
     }
 }
-
-
-// create connection to our db
-// const db = mysql.createConnection(
-//     {
-//         host: 'localhost',
-//         // MySQL username,
-//         user: 'root',
-//         // {TODO: Add your MySQL password}
-//         password: 'Audilambo721',
-//         database: 'employee_tracker'
-//         },
-//         console.log(`Connected to the employee_tracker database.`)
-// );
-
-// db.query(`SELECT * FROM department`, (err, result) => {
-//     if (err) {
-//         console.log(err);
-//     }
-//     console.log(result);
-// });
 
 module.exports = Database;
